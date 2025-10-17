@@ -34,12 +34,10 @@ class DIATKAN(L.LightningModule):
         self.num_classes = num_classes
         self.class_names = class_names or [f"Class_{i}" for i in range(num_classes)]
 
-        # Metrics
         self.train_acc = Accuracy(task="multiclass", num_classes=num_classes)
         self.val_acc = Accuracy(task="multiclass", num_classes=num_classes)
         self.test_acc = Accuracy(task="multiclass", num_classes=num_classes)
 
-        # Confusion Matrix
         self.val_conf_matrix = ConfusionMatrix(
             task="multiclass", num_classes=num_classes
         )
@@ -47,7 +45,6 @@ class DIATKAN(L.LightningModule):
             task="multiclass", num_classes=num_classes
         )
 
-        # Store predictions for plotting
         self.validation_step_outputs = []
 
         self.feature_extractor = FeaturesExtractor()
@@ -82,11 +79,9 @@ class DIATKAN(L.LightningModule):
         loss = F.cross_entropy(y_hat, y)
         preds = torch.argmax(y_hat, dim=1)
 
-        # Update metrics
         self.val_acc(y_hat, y)
         self.val_conf_matrix.update(preds, y)
 
-        # Store outputs for epoch end
         self.validation_step_outputs.append(
             {"loss": loss.detach(), "preds": preds.detach(), "targets": y.detach()}
         )
@@ -100,29 +95,23 @@ class DIATKAN(L.LightningModule):
         if len(self.validation_step_outputs) == 0:
             return
 
-        # Compute confusion matrix
         conf_matrix = self.val_conf_matrix.compute()
 
-        # Calculate per-class accuracy
         per_class_acc = conf_matrix.diag() / conf_matrix.sum(dim=1)
 
-        # Log per-class accuracy
         for idx, class_name in enumerate(self.class_names):
             self.log(
                 f"Validation/Accuracy_{class_name}", per_class_acc[idx], on_epoch=True
             )
 
-        # Create figure
         fig = self._plot_confusion_matrix(conf_matrix, "Validation Confusion Matrix")
 
-        # Log to TensorBoard
         self.logger.experiment.add_figure(
             "Validation/Confusion Matrix", fig, global_step=self.current_epoch
         )
 
         plt.close(fig)
 
-        # Reset for next epoch
         self.val_conf_matrix.reset()
         self.validation_step_outputs.clear()
 
@@ -130,11 +119,12 @@ class DIATKAN(L.LightningModule):
         """Create a confusion matrix plot"""
         fig, ax = plt.subplots(figsize=(10, 8))
 
-        # Convert to numpy and normalize
         cm = conf_matrix.cpu().numpy()
-        cm_normalized = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
 
-        # Plot
+        row_sums = cm.sum(axis=1)[:, np.newaxis]
+        row_sums[row_sums == 0] = 1
+        cm_normalized = cm.astype("float") / row_sums
+
         sns.heatmap(
             cm_normalized,
             annot=True,
@@ -150,7 +140,6 @@ class DIATKAN(L.LightningModule):
         ax.set_ylabel("True Label", fontsize=12)
         ax.set_xlabel("Predicted Label", fontsize=12)
 
-        # Add counts as text
         for i in range(len(self.class_names)):
             for j in range(len(self.class_names)):
                 count = cm[i, j]

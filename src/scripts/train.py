@@ -9,6 +9,7 @@ import hydra
 import torch
 
 ssl._create_default_https_context = ssl._create_unverified_context
+torch.set_float32_matmul_precision("medium")
 
 
 @hydra.main(config_path="../config", config_name="config", version_base=None)
@@ -60,6 +61,7 @@ def train(cfg):
         precision=cfg.data_params.precision,
         logger=tb_logger,
         callbacks=[checkpoint_callback, lr_monitor],
+        enable_model_summary=False,
         log_every_n_steps=10,
         accumulate_grad_batches=cfg.data_params.gradient_accumulation_steps,
     )
