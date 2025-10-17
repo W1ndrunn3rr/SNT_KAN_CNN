@@ -12,5 +12,4 @@ wheels/
 # Data files
 data/
 logs/
-models/
 lightning_logs/

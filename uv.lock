@@ -1094,15 +1094,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pykan"
-version = "0.2.8"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/9b/dc/8f15815b9ffe8d388ff48aa1aa5b700d17d75f19c4d00f78db013d82ad41/pykan-0.2.8.tar.gz", hash = "sha256:b530b96a9f0584db0a3a80b0425b479613eadce966de96bce8b787b60a8abc73", size = 80870, upload-time = "2024-11-14T21:40:24.119Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/e2/c0103e253776b2ec01232cceb9f96fe4ff1b1f69150a0f5220f2cca78a93/pykan-0.2.8-py3-none-any.whl", hash = "sha256:31261e40973053ab87cff19713f5d9e1f451f4f9ab183ce56edf2a4a44127213", size = 78055, upload-time = "2024-11-14T21:40:22.659Z" },
-]
-
-[[package]]
 name = "pyparsing"
 version = "3.2.5"
 source = { registry = "https://pypi.org/simple" }
@@ -1309,7 +1300,6 @@ dependencies = [
     { name = "lightning" },
     { name = "matplotlib" },
     { name = "pandas" },
-    { name = "pykan" },
     { name = "scikit-learn" },
     { name = "seaborn" },
     { name = "tensorboard" },
@@ -1324,7 +1314,6 @@ requires-dist = [
     { name = "lightning", specifier = ">=2.5.5" },
     { name = "matplotlib", specifier = ">=3.10.7" },
     { name = "pandas", specifier = ">=2.3.3" },
-    { name = "pykan", specifier = ">=0.2.8" },
     { name = "scikit-learn", specifier = ">=1.7.2" },
     { name = "seaborn", specifier = ">=0.13.0" },
     { name = "tensorboard", specifier = ">=2.20.0" },
