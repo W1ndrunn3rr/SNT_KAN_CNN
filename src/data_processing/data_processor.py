@@ -35,3 +35,7 @@ class DataProcessor(nn.Module):
 
     def get_loaders(self):
         return self.train_loader, self.val_loader
+
+    def get_class_names(self):
+        """Return the class names from the dataset"""
+        return self.dataset.classes

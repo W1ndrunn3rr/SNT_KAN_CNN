@@ -21,7 +21,9 @@ log_params:
 
 hydra:
   run:
-    dir: logs/outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: logs/hydra/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: logs/hydra/multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
   job_logging:
     version: 1
     root:
