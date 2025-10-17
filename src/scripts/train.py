@@ -69,19 +69,11 @@ def train(cfg):
     print(f"\n{'='*60}")
     print(f"🚀 Starting training: {cfg.model_params.model_type}")
     print(f"📊 TensorBoard logs: {tb_logger.log_dir}")
-    print(f"💾 Models will be saved to: {models_dir}")
     print(f"🎯 To view TensorBoard, run:")
     print(f"   tensorboard --logdir {logs_dir}/tensorboard")
     print(f"{'='*60}\n")
 
     trainer.fit(model, train_loader, val_loader)
-
-    checkpoint_filename = f"{cfg.model_params.model_type}_final.ckpt"
-    trainer.save_checkpoint(os.path.join(models_dir, checkpoint_filename))
-
-    print(f"\n✅ Training completed!")
-    print(f"📊 View results: tensorboard --logdir {logs_dir}/tensorboard")
-    print(f"💾 Best model saved in: {models_dir}\n")
 
 
 if __name__ == "__main__":
