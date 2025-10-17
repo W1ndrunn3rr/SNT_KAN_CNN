@@ -11,7 +11,9 @@ data_params:
   val_dir: "data/val"
   test_dir: "data/test"
   batch_size: 32
-  num_workers: 12
+  num_workers: 8
+  precision: "16-mixed"
+  gradient_accumulation_steps: 2
 
 log_params:
   models_dir: "models"
