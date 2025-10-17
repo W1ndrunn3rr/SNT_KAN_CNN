@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
@@ -7,7 +6,7 @@ from torch.utils.data import DataLoader, random_split
 
 class DataProcessor(nn.Module):
     def __init__(
-        self, data_dir: str = "data", batch_size: int = 32, num_workers: int = 4
+        self, data_dir: str = "data/train", batch_size: int = 32, num_workers: int = 4
     ):
         super(DataProcessor, self).__init__()
         self.transform = transforms.Compose(

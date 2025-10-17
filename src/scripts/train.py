@@ -1,5 +1,5 @@
 from src.data_processing.data_processor import DataProcessor
-from src.models.diat_kan import DIATKAN
+from src.models.snt_cnn import SNTCNN
 import lightning as L
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
@@ -27,13 +27,13 @@ def train(cfg):
     tb_logger = TensorBoardLogger(
         save_dir=logs_dir,
         name="tensorboard",
-        version=f"{cfg.model_params.model_name}_{cfg.model_params.model_type}",
+        version=f"{cfg.model_params.model_type}",
         default_hp_metric=False,
     )
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=models_dir,
-        filename=f"{cfg.model_params.model_name}-{{epoch:02d}}-{{val_loss:.4f}}",
+        filename=f"{cfg.model_params.model_type}-{{epoch:02d}}-{{val_loss:.4f}}",
         save_top_k=3,
         monitor="val_loss",
         mode="min",
@@ -47,7 +47,7 @@ def train(cfg):
     train_loader, val_loader = data_processor.get_loaders()
     class_names = data_processor.get_class_names()
 
-    model = DIATKAN(
+    model = SNTCNN(
         model_type=cfg.model_params.model_type,
         num_classes=cfg.model_params.num_classes,
         optimizer=cfg.model_params.optimizer,
@@ -67,7 +67,7 @@ def train(cfg):
     )
 
     print(f"\n{'='*60}")
-    print(f"🚀 Starting training: {cfg.model_params.model_name}")
+    print(f"🚀 Starting training: {cfg.model_params.model_type}")
     print(f"📊 TensorBoard logs: {tb_logger.log_dir}")
     print(f"💾 Models will be saved to: {models_dir}")
     print(f"🎯 To view TensorBoard, run:")
@@ -76,7 +76,7 @@ def train(cfg):
 
     trainer.fit(model, train_loader, val_loader)
 
-    checkpoint_filename = f"{cfg.model_params.model_name}_final.ckpt"
+    checkpoint_filename = f"{cfg.model_params.model_type}_final.ckpt"
     trainer.save_checkpoint(os.path.join(models_dir, checkpoint_filename))
 
     print(f"\n✅ Training completed!")

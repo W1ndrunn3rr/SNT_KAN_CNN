@@ -1,6 +1,3 @@
-#!/usr/bin/env bash
-# GPU monitoring script
-
 echo "🖥️  GPU Monitoring (press Ctrl+C to stop)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
