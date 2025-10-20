@@ -25,19 +25,29 @@ sar_2_test = sar_2_dir / "test"
 for dir_path in [sar_1_train, sar_1_test, sar_2_train, sar_2_test]:
     dir_path.mkdir(parents=True, exist_ok=True)
 
-# Get all subdirectories (terrain classes)
-source_path_obj = Path(source_path)
-subfolders = [f for f in source_path_obj.iterdir() if f.is_dir()]
+# Navigate to the versioned data folder
+source_path_obj = Path(source_path) / "1" / "v_2"
+
+# Get all class directories (agri, barren, etc.)
+class_folders = [f for f in source_path_obj.iterdir() if f.is_dir()]
 
 print(f"\nProcessing terrain classes...")
 
-for folder in subfolders:
-    class_name = folder.name
+for class_folder in class_folders:
+    class_name = class_folder.name
     print(f"Processing class: {class_name}")
 
-    # Get all SAR-1 and SAR-2 files
-    sar_1_files = sorted(glob.glob(str(folder / "*SAR-1.png")))
-    sar_2_files = sorted(glob.glob(str(folder / "*SAR-2.png")))
+    # Get s1 and s2 subdirectories
+    s1_folder = class_folder / "s1"
+    s2_folder = class_folder / "s2"
+
+    if not s1_folder.exists() or not s2_folder.exists():
+        print(f"  Warning: Missing s1 or s2 folder in {class_name}")
+        continue
+
+    # Get all files from s1 and s2
+    sar_1_files = sorted(glob.glob(str(s1_folder / "*.png")))
+    sar_2_files = sorted(glob.glob(str(s2_folder / "*.png")))
 
     if not sar_1_files or not sar_2_files:
         print(f"  Warning: Missing files in {class_name}")
