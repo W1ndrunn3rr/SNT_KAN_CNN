@@ -24,3 +24,6 @@ get-sar-data:
 
 prepare-env:
     just clone-kan-repo && just get-sar-data
+
+prepare-data: 
+    uv run python src/scripts/prepare_data.py

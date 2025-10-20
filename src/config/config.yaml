@@ -13,12 +13,14 @@ data_params:
   num_workers: 8
   precision: "16-mixed"
   gradient_accumulation_steps: 2
+  val_split: 0.2  
+  seed: 42  
 
 log_params:
   models_dir: "models"
 
 test_params:
-  checkpoint_path: "logs/models/KAN_FAST-last.ckpt"  # Path to model checkpoint
+  checkpoint_path: "logs/models/last.ckpt"  # Path to model checkpoint
 
 
 hydra:

@@ -43,7 +43,13 @@ def train(cfg):
 
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
 
-    data_processor = DataProcessor()
+    data_processor = DataProcessor(
+        data_dir=os.path.join(project_root, cfg.data_params.train_dir),
+        batch_size=cfg.data_params.batch_size,
+        num_workers=cfg.data_params.num_workers,
+        val_split=cfg.data_params.val_split,
+        seed=cfg.data_params.seed,
+    )
     train_loader, val_loader = data_processor.get_loaders()
     class_names = data_processor.get_class_names()
 
