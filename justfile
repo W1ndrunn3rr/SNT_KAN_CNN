@@ -27,3 +27,6 @@ prepare-env:
 
 prepare-data: 
     uv run python src/scripts/prepare_data.py
+
+analyze-data:
+    uv run python src/scripts/analyze_data.py

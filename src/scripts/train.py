@@ -59,6 +59,7 @@ def train(cfg):
         optimizer=cfg.model_params.optimizer,
         learning_rate=cfg.model_params.learning_rate,
         class_names=class_names,
+        scheduler_config=cfg.model_params.scheduler,
     )
 
     trainer = L.Trainer(

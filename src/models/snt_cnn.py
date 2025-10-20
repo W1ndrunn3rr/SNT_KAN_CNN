@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import os
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
 class SNTCNN(L.LightningModule):
@@ -23,6 +24,7 @@ class SNTCNN(L.LightningModule):
         k: int = 3,
         flatten_size: int = 256,
         class_names: list[str] = None,
+        scheduler_config: dict | None = None,
     ):
         super(SNTCNN, self).__init__()
         self.save_hyperparameters()
@@ -32,6 +34,11 @@ class SNTCNN(L.LightningModule):
         self.num_classes = num_classes
         self.model_type = model_type
         self.class_names = class_names or [f"Class_{i}" for i in range(num_classes)]
+        if scheduler_config is None:
+            scheduler_config = {}
+        elif hasattr(scheduler_config, "items"):
+            scheduler_config = dict(scheduler_config)
+        self.scheduler_config = scheduler_config
 
         self.train_acc = Accuracy(task="multiclass", num_classes=num_classes)
         self.val_acc = Accuracy(task="multiclass", num_classes=num_classes)
@@ -220,14 +227,43 @@ class SNTCNN(L.LightningModule):
 
     def configure_optimizers(self):
         if self.optimizer == "adam":
-            return torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+            optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         elif self.optimizer == "adamw":
-            return torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
+            optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
         elif self.optimizer == "adagrad":
-            return torch.optim.Adagrad(self.parameters(), lr=self.learning_rate)
+            optimizer = torch.optim.Adagrad(self.parameters(), lr=self.learning_rate)
         elif self.optimizer == "sgd":
-            return torch.optim.SGD(
+            optimizer = torch.optim.SGD(
                 self.parameters(), lr=self.learning_rate, momentum=0.9
             )
         else:
             raise ValueError(f"Unknown optimizer: {self.optimizer}")
+
+        factor = self.scheduler_config.get("factor", 0.5)
+        patience = self.scheduler_config.get("patience", 3)
+        min_lr = self.scheduler_config.get("min_lr", 1e-7)
+        monitor = self.scheduler_config.get("monitor", "val_loss")
+        mode = self.scheduler_config.get("mode", "min")
+        threshold = self.scheduler_config.get("threshold", 1e-4)
+        cooldown = self.scheduler_config.get("cooldown", 0)
+
+        scheduler = ReduceLROnPlateau(
+            optimizer,
+            mode=mode,
+            factor=factor,
+            patience=patience,
+            min_lr=min_lr,
+            threshold=threshold,
+            cooldown=cooldown,
+            verbose=True,
+        )
+
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "monitor": monitor,
+                "interval": "epoch",
+                "frequency": 1,
+            },
+        }

@@ -34,4 +34,5 @@ fastkan = { path = "fast-kan" }
 
 [project.scripts]
 train = "src.scripts.train:train"
+test = "src.scripts.test:test"
 report = "src.scripts.generate_report:generate"
