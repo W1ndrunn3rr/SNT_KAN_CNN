@@ -66,13 +66,6 @@ def train(cfg):
         accumulate_grad_batches=cfg.data_params.gradient_accumulation_steps,
     )
 
-    print(f"\n{'='*60}")
-    print(f"🚀 Starting training: {cfg.model_params.model_type}")
-    print(f"📊 TensorBoard logs: {tb_logger.log_dir}")
-    print(f"🎯 To view TensorBoard, run:")
-    print(f"   tensorboard --logdir {logs_dir}/tensorboard")
-    print(f"{'='*60}\n")
-
     trainer.fit(model, train_loader, val_loader)
 
 

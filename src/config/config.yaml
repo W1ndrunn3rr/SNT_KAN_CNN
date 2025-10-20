@@ -17,6 +17,9 @@ data_params:
 log_params:
   models_dir: "models"
 
+test_params:
+  checkpoint_path: "logs/models/KAN_FAST-last.ckpt"  # Path to model checkpoint
+
 
 hydra:
   run:
