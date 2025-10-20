@@ -31,13 +31,23 @@ def train(cfg):
         default_hp_metric=False,
     )
 
-    checkpoint_callback = ModelCheckpoint(
+    accuracy_checkpoint = ModelCheckpoint(
         dirpath=models_dir,
-        filename=f"{cfg.model_params.model_type}-{{epoch:02d}}-{{val_loss:.4f}}",
-        save_top_k=3,
+        filename=f"{cfg.model_params.model_type}",
+        monitor="val_accuracy",
+        mode="max",
+        save_top_k=1,
+        auto_insert_metric_name=False,
+        verbose=True,
+    )
+
+    loss_checkpoint = ModelCheckpoint(
+        dirpath=models_dir,
+        filename=f"{cfg.model_params.model_type}",
         monitor="val_loss",
         mode="min",
-        save_last=True,
+        save_top_k=1,
+        auto_insert_metric_name=False,
         verbose=True,
     )
 
@@ -67,7 +77,7 @@ def train(cfg):
         accelerator="gpu",
         precision=cfg.data_params.precision,
         logger=tb_logger,
-        callbacks=[checkpoint_callback, lr_monitor],
+        callbacks=[accuracy_checkpoint, loss_checkpoint, lr_monitor],
         enable_model_summary=False,
         log_every_n_steps=10,
         accumulate_grad_batches=cfg.data_params.gradient_accumulation_steps,

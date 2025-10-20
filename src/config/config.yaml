@@ -28,7 +28,7 @@ log_params:
   models_dir: "models"
 
 test_params:
-  checkpoint_path: "logs/models/last.ckpt"  
+  checkpoint_path: "logs/models/${model_params.model_type}.ckpt"  
 
 
 hydra:
