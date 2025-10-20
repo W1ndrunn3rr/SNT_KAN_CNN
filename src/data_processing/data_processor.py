@@ -5,6 +5,47 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, random_split
 
 
+def _compute_mean_std(
+    data_dir: str,
+    batch_size: int,
+    num_workers: int,
+) -> tuple[list[float], list[float]]:
+    """Compute channel-wise mean and std for images in ``data_dir``."""
+    dataset = ImageFolder(
+        root=data_dir,
+        transform=transforms.ToTensor(),
+    )
+
+    loader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True,
+    )
+
+    channel_sum = torch.zeros(3, dtype=torch.double)
+    channel_sq_sum = torch.zeros(3, dtype=torch.double)
+    total_pixels = 0
+
+    for images, _ in loader:
+        images = images.to(dtype=torch.double)
+        batch_size_curr, channels, height, width = images.shape
+        pixels = batch_size_curr * height * width
+        channel_sum += images.sum(dim=(0, 2, 3))
+        channel_sq_sum += (images**2).sum(dim=(0, 2, 3))
+        total_pixels += pixels
+
+    if total_pixels == 0:
+        raise ValueError(f"Dataset at {data_dir} is empty. Cannot compute mean/std.")
+
+    mean = channel_sum / total_pixels
+    var = (channel_sq_sum / total_pixels) - mean**2
+    std = torch.sqrt(torch.clamp(var, min=1e-12))
+
+    return mean.float().tolist(), std.float().tolist()
+
+
 class DataProcessor(nn.Module):
     def __init__(
         self,
@@ -26,6 +67,16 @@ class DataProcessor(nn.Module):
         """
         super(DataProcessor, self).__init__()
 
+        self.mean, self.std = _compute_mean_std(
+            data_dir=data_dir,
+            batch_size=batch_size,
+            num_workers=num_workers,
+        )
+
+        print("\n📐 Computed dataset statistics:")
+        print(f"   Mean: {self.mean}")
+        print(f"   Std : {self.std}\n")
+
         self.train_transform = transforms.Compose(
             [
                 transforms.Resize((224, 224)),
@@ -35,7 +86,8 @@ class DataProcessor(nn.Module):
                 transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
                 transforms.ToTensor(),
                 transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                    mean=self.mean,
+                    std=self.std,
                 ),
             ]
         )
@@ -45,7 +97,8 @@ class DataProcessor(nn.Module):
                 transforms.Resize((224, 224)),
                 transforms.ToTensor(),
                 transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                    mean=self.mean,
+                    std=self.std,
                 ),
             ]
         )

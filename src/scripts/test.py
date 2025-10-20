@@ -1,4 +1,5 @@
 from src.models.snt_cnn import SNTCNN
+from src.data_processing.data_processor import _compute_mean_std
 import lightning as L
 from lightning.pytorch.loggers import TensorBoardLogger
 import torch
@@ -47,11 +48,17 @@ def test(cfg: DictConfig):
             f"Please check if the path is correct in config.yaml"
         )
 
+    mean, std = _compute_mean_std(
+        data_dir=test_dir,
+        batch_size=cfg.data_params.batch_size,
+        num_workers=cfg.data_params.num_workers,
+    )
+
     transform = transforms.Compose(
         [
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Normalize(mean=mean, std=std),
         ]
     )
 
