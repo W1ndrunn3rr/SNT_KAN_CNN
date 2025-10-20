@@ -26,7 +26,7 @@ for dir_path in [sar_1_train, sar_1_test, sar_2_train, sar_2_test]:
     dir_path.mkdir(parents=True, exist_ok=True)
 
 # Navigate to the versioned data folder
-source_path_obj = Path(source_path) / "1" / "v_2"
+source_path_obj = Path(source_path) / "v_2"
 
 # Get all class directories (agri, barren, etc.)
 class_folders = [f for f in source_path_obj.iterdir() if f.is_dir()]
