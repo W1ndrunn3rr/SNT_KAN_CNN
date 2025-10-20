@@ -255,7 +255,6 @@ class SNTCNN(L.LightningModule):
             min_lr=min_lr,
             threshold=threshold,
             cooldown=cooldown,
-            verbose=True,
         )
 
         return {
