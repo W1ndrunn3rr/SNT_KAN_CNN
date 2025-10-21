@@ -40,3 +40,6 @@ prepare-data:
 
 analyze-data:
     uv run python src/scripts/analyze_data.py
+
+make-raport:
+    uv run python src/scripts/make_raport.py

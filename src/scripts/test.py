@@ -91,7 +91,10 @@ def test(cfg: DictConfig):
     if "logger" in cfg and "version" in cfg.logger and cfg.logger.version:
         version_name = cfg.logger.version
     else:
-        version_name = f"{model.model_type}_{dataset_name}_TEST"
+        if "test" in dataset_name.lower():
+            version_name = f"{model.model_type}_TEST"
+        else:
+            version_name = f"{model.model_type}_{dataset_name}_TEST"
 
     print(f"📊 TensorBoard log version: {version_name}")
 
