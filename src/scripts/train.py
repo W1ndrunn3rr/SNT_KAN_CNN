@@ -27,38 +27,22 @@ def train(cfg):
     tb_logger = TensorBoardLogger(
         save_dir=logs_dir,
         name="tensorboard",
-        version=f"{cfg.model_params.model_type}",
+        version=f"{cfg.model_params.model_type}_{cfg.data_params.dataset_name}",
         default_hp_metric=False,
     )
 
-    accuracy_checkpoint = ModelCheckpoint(
-        dirpath=models_dir,
-        filename=f"{cfg.model_params.model_type}",
-        monitor="val_accuracy",
-        mode="max",
-        save_top_k=1,
-        auto_insert_metric_name=False,
-        verbose=True,
+    checkpoint_name = (
+        f"{cfg.model_params.model_type}_{cfg.data_params.dataset_name}_best"
     )
-
-    loss_checkpoint = ModelCheckpoint(
-        dirpath=models_dir,
-        filename=f"{cfg.model_params.model_type}",
-        monitor="val_loss",
-        mode="min",
-        save_top_k=1,
-        auto_insert_metric_name=False,
-        verbose=True,
-    )
-
-    checkpoint_name = f"{cfg.model_params.model_type}_{cfg.data_params.dataset_name}"
     checkpoint_callback = ModelCheckpoint(
-        dirpath=cfg.log_params.models_dir,
+        dirpath=models_dir,
         filename=checkpoint_name,
         monitor="val_loss",
         mode="min",
         save_top_k=1,
-        save_last=False,
+        save_last=True,
+        auto_insert_metric_name=False,
+        verbose=True,
     )
 
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
@@ -88,10 +72,8 @@ def train(cfg):
         precision=cfg.data_params.precision,
         logger=tb_logger,
         callbacks=[
-            accuracy_checkpoint,
-            loss_checkpoint,
-            lr_monitor,
             checkpoint_callback,
+            lr_monitor,
         ],
         enable_model_summary=False,
         log_every_n_steps=10,
