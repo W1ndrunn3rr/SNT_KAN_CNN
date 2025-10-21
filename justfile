@@ -8,7 +8,7 @@ clear-logs:
     cd logs && rm -rf * && cd ..
 
 train model dataset_name:
-    python src/scripts/train.py model_params.model_type={{model}} data_params.dataset_name={{dataset_name}}
+    uv run train model_params.model_type={{model}} data_params.dataset_name={{dataset_name}}
 
 train-all dataset_name:
     #!/usr/bin/env bash
