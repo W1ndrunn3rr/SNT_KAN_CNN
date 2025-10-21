@@ -51,6 +51,16 @@ def train(cfg):
         verbose=True,
     )
 
+    checkpoint_name = f"{cfg.model_params.model_type}_{cfg.data_params.dataset_name}"
+    checkpoint_callback = ModelCheckpoint(
+        dirpath=cfg.log_params.models_dir,
+        filename=checkpoint_name,
+        monitor="val_loss",
+        mode="min",
+        save_top_k=1,
+        save_last=False,
+    )
+
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
 
     data_processor = DataProcessor(
@@ -77,7 +87,12 @@ def train(cfg):
         accelerator="gpu",
         precision=cfg.data_params.precision,
         logger=tb_logger,
-        callbacks=[accuracy_checkpoint, loss_checkpoint, lr_monitor],
+        callbacks=[
+            accuracy_checkpoint,
+            loss_checkpoint,
+            lr_monitor,
+            checkpoint_callback,
+        ],
         enable_model_summary=False,
         log_every_n_steps=10,
         accumulate_grad_batches=cfg.data_params.gradient_accumulation_steps,

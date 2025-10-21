@@ -14,9 +14,10 @@ model_params:
     cooldown: 0
 
 data_params:
-  train_dir: "data/train"
-  val_dir: "data/val"
-  test_dir: "data/test"
+  dataset_name: "sar_1"  # sar_1 or sar_2
+  train_dir: "data/${data_params.dataset_name}/train"
+  val_dir: "data/${data_params.dataset_name}/val"
+  test_dir: "data/${data_params.dataset_name}/test"
   batch_size: 32
   num_workers: 8
   precision: "16-mixed"
@@ -26,10 +27,10 @@ data_params:
 
 log_params:
   models_dir: "models"
+  checkpoint_name: "${model_params.model_type}_${data_params.dataset_name}"
 
 test_params:
-  checkpoint_path: "logs/models/${model_params.model_type}.ckpt"  
-
+  checkpoint_path: "logs/models/${log_params.checkpoint_name}.ckpt"  
 
 hydra:
   run:
@@ -51,5 +52,3 @@ hydra:
     loggers:
       lightning:
         level: INFO
-
-

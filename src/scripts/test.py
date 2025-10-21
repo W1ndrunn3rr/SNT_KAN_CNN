@@ -26,6 +26,7 @@ def test(cfg: DictConfig):
             - data_params.test_dir: Path to test data directory
             - data_params.batch_size: Batch size for testing
             - data_params.num_workers: Number of data loading workers
+            - logger.version: (Optional) Custom version name for TensorBoard
     """
     torch.backends.cudnn.benchmark = True
 
@@ -85,11 +86,20 @@ def test(cfg: DictConfig):
     print(f"Model type: {model.model_type}")
     print(f"Number of classes: {model.num_classes}")
 
+    dataset_name = os.path.basename(test_dir)
+
+    if "logger" in cfg and "version" in cfg.logger and cfg.logger.version:
+        version_name = cfg.logger.version
+    else:
+        version_name = f"{model.model_type}_{dataset_name}_TEST"
+
+    print(f"📊 TensorBoard log version: {version_name}")
+
     logs_dir = os.path.join(project_root, "logs")
     tb_logger = TensorBoardLogger(
         save_dir=logs_dir,
         name="tensorboard",
-        version=f"{model.model_type}_test",
+        version=version_name,
         default_hp_metric=False,
     )
 
@@ -100,7 +110,10 @@ def test(cfg: DictConfig):
         enable_model_summary=True,
     )
 
+    print(f"🧪 Starting evaluation on {dataset_name} dataset...")
     trainer.test(model, test_loader)
+    print(f"✅ Evaluation completed!")
+    print(f"📁 Logs saved to: {os.path.join(logs_dir, 'tensorboard', version_name)}")
 
 
 if __name__ == "__main__":

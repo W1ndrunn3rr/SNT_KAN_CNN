@@ -7,8 +7,18 @@ tensorboard:
 clear-logs:
     cd logs && rm -rf * && cd ..
 
-train MODEL:
-    uv run train model_params.model_type={{MODEL}}
+train model dataset_name:
+    python src/scripts/train.py model_params.model_type={{model}} data_params.dataset_name={{dataset_name}}
+
+train-all dataset_name:
+    #!/usr/bin/env bash
+    echo "Training all models on dataset: {{dataset_name}}"
+    models=("KAN_FAST" "resnet50" "vgg16" "densenet121" "mobilenet_v2" "efficientnet_b0" "vit_b_16")
+    for model in "${models[@]}"; do
+        echo "Training $model..."
+        just train $model {{dataset_name}}
+    done
+    echo "All models trained successfully!"
 
 test CHECKPOINT:
     uv run test test_params.checkpoint_path={{CHECKPOINT}}
