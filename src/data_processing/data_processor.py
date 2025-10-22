@@ -13,7 +13,12 @@ def _compute_mean_std(
     """Compute channel-wise mean and std for images in ``data_dir``."""
     dataset = ImageFolder(
         root=data_dir,
-        transform=transforms.ToTensor(),
+        transform=transforms.Compose(
+            [
+                transforms.Resize((224, 224)),  # Add this line
+                transforms.ToTensor(),
+            ]
+        ),
     )
 
     loader = DataLoader(
@@ -72,10 +77,6 @@ class DataProcessor(nn.Module):
             batch_size=batch_size,
             num_workers=num_workers,
         )
-
-        print("\n📐 Computed dataset statistics:")
-        print(f"   Mean: {self.mean}")
-        print(f"   Std : {self.std}\n")
 
         self.train_transform = transforms.Compose(
             [
