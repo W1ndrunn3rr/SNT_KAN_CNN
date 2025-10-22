@@ -48,7 +48,7 @@ def extract_all_model_data(tensorboard_dir: str) -> dict:
                 model_data[model_name] = df
                 print(f"   ✅ Found {len(df)} steps")
             else:
-                print(f"   ⚠️  No data found")
+                print("   ⚠️  No data found")
         except Exception as e:
             print(f"   ❌ Error: {e}")
 

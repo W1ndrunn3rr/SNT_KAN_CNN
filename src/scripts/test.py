@@ -1,4 +1,4 @@
-from src.models.snt_cnn import SNTCNN
+from src.models.snt_cnn import UniversalCNN
 from src.data_processing.data_processor import _compute_mean_std
 import lightning as L
 from lightning.pytorch.loggers import TensorBoardLogger
@@ -74,15 +74,15 @@ def test(cfg: DictConfig):
 
     class_names = test_dataset.classes
 
-    print(f"🔄 Loading model from checkpoint:")
+    print("🔄 Loading model from checkpoint:")
     print(f"   {checkpoint_path}")
 
-    model = SNTCNN.load_from_checkpoint(
+    model = UniversalCNN.load_from_checkpoint(
         checkpoint_path,
         class_names=class_names,
     )
 
-    print(f"Model loaded successfully!")
+    print("Model loaded successfully!")
     print(f"Model type: {model.model_type}")
     print(f"Number of classes: {model.num_classes}")
 
@@ -115,7 +115,7 @@ def test(cfg: DictConfig):
 
     print(f"🧪 Starting evaluation on {dataset_name} dataset...")
     trainer.test(model, test_loader)
-    print(f"✅ Evaluation completed!")
+    print("✅ Evaluation completed!")
     print(f"📁 Logs saved to: {os.path.join(logs_dir, 'tensorboard', version_name)}")
 
 

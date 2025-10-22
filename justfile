@@ -13,7 +13,7 @@ train model dataset_name:
 train-all dataset_name:
     #!/usr/bin/env bash
     echo "Training all models on dataset: {{dataset_name}}"
-    models=("KAN_FAST" "resnet50" "vgg16" "densenet121" "mobilenet_v2" "efficientnet_b0" "vit_b_16")
+    models=("KAN_FAST" "resnet50" "vgg16" "densenet121" "mobilenet_v2" "diatnet" "efficientnet_b0" "vit_b_16")
     for model in "${models[@]}"; do
         echo "Training $model..."
         just train $model {{dataset_name}}

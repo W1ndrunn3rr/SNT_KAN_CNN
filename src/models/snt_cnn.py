@@ -8,11 +8,10 @@ from torchmetrics import Accuracy, ConfusionMatrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-import os
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
-class SNTCNN(L.LightningModule):
+class UniversalCNN(L.LightningModule):
     def __init__(
         self,
         model_type: str = "KAN_FAST",
@@ -26,7 +25,7 @@ class SNTCNN(L.LightningModule):
         class_names: list[str] = None,
         scheduler_config: dict | None = None,
     ):
-        super(SNTCNN, self).__init__()
+        super(UniversalCNN, self).__init__()
         self.save_hyperparameters()
         self.optimizer = optimizer
         self.learning_rate = learning_rate
@@ -97,6 +96,11 @@ class SNTCNN(L.LightningModule):
             self.model = torchvision.models.vit_b_16(weights=weights)
             num_ftrs = self.model.heads.head.in_features
             self.model.heads.head = torch.nn.Linear(num_ftrs, num_classes)
+
+        elif model_type == "diatnet":
+            from .diat_cnn import DiatNet
+
+            self.model = DiatNet(num_classes=num_classes)
 
         else:
             raise ValueError(

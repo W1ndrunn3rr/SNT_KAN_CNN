@@ -1,5 +1,5 @@
 from src.data_processing.data_processor import DataProcessor
-from src.models.snt_cnn import SNTCNN
+from src.models.snt_cnn import UniversalCNN
 import lightning as L
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
@@ -57,7 +57,7 @@ def train(cfg):
     train_loader, val_loader = data_processor.get_loaders()
     class_names = data_processor.get_class_names()
 
-    model = SNTCNN(
+    model = UniversalCNN(
         model_type=cfg.model_params.model_type,
         num_classes=cfg.model_params.num_classes,
         optimizer=cfg.model_params.optimizer,

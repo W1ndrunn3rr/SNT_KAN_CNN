@@ -1,11 +1,10 @@
 import kagglehub
 import shutil
-import os
 import glob
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 
-print(f"Downloading dataset from Kaggle...")
+print("Downloading dataset from Kaggle...")
 
 source_path = kagglehub.dataset_download(
     "requiemonk/sentinel12-image-pairs-segregated-by-terrain",
@@ -31,7 +30,7 @@ source_path_obj = Path(source_path) / "v_2"
 # Get all class directories (agri, barren, etc.)
 class_folders = [f for f in source_path_obj.iterdir() if f.is_dir()]
 
-print(f"\nProcessing terrain classes...")
+print("\nProcessing terrain classes...")
 
 for class_folder in class_folders:
     class_name = class_folder.name
@@ -90,7 +89,7 @@ for class_folder in class_folders:
     print(f"  SAR-1: {len(sar_1_train_files)} train, {len(sar_1_test_files)} test")
     print(f"  SAR-2: {len(sar_2_train_files)} train, {len(sar_2_test_files)} test")
 
-print(f"\nDatasets ready:")
+print("\nDatasets ready:")
 print(f"  SAR-1: {sar_1_dir.absolute()}")
 print(f"  SAR-2: {sar_2_dir.absolute()}")
 print(f"\nOriginal data: {source_path}")
