@@ -47,7 +47,10 @@ class FeaturesExtractor(L.LightningModule):
             nn.AdaptiveAvgPool2d((1, 1)),
         )
 
+        self.projection = nn.Linear(512, 256)
+
     def forward(self, x):
         x = self.extractor(x)
         x = torch.flatten(x, 1)
+        x = self.projection(x)
         return x
