@@ -10,12 +10,11 @@ def _compute_mean_std(
     batch_size: int,
     num_workers: int,
 ) -> tuple[list[float], list[float]]:
-    """Compute channel-wise mean and std for images in ``data_dir``."""
     dataset = ImageFolder(
         root=data_dir,
         transform=transforms.Compose(
             [
-                transforms.Resize((224, 224)),  # Add this line
+                transforms.Resize((224, 224)),
                 transforms.ToTensor(),
             ]
         ),
@@ -60,16 +59,6 @@ class DataProcessor(nn.Module):
         val_split: float = 0.2,
         seed: int = 42,
     ):
-        """
-        Data processor for training and validation data.
-
-        Args:
-            data_dir: Path to training data directory
-            batch_size: Batch size for data loaders
-            num_workers: Number of workers for data loading
-            val_split: Fraction of data to use for validation (default: 0.2 = 20%)
-            seed: Random seed for reproducible train/val split (default: 42)
-        """
         super(DataProcessor, self).__init__()
 
         self.mean, self.std = _compute_mean_std(
