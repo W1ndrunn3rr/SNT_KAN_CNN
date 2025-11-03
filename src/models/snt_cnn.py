@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-
+import os
 
 class UniversalCNN(L.LightningModule):
     def __init__(
@@ -58,20 +58,31 @@ class UniversalCNN(L.LightningModule):
 
             pretrained_path = feature_extractor_path if model_type == "KAN_FAST" else None
             if pretrained_path and os.path.exists(pretrained_path):
-                checkpoint = torch.load(pretrained_path, map_location='cpu')
-                if 'state_dict' in checkpoint:
-                    self.feature_extractor.load_state_dict(checkpoint['state_dict'])
-                else:
-                    self.feature_extractor.load_state_dict(checkpoint)
-                print(f"Loaded pretrained weights from {pretrained_path}")
-                self.feature_extractor.freeze()
+                try:
+                    if pretrained_path.endswith('.ckpt'):
+                        loaded_extractor = FeaturesExtractor.load_from_checkpoint(
+                            pretrained_path,
+                            strict=False
+                        )
+                        self.feature_extractor.load_state_dict(loaded_extractor.state_dict())
+                    else:
+                        checkpoint = torch.load(pretrained_path, map_location='cpu', weights_only=False)
+                        if 'state_dict' in checkpoint:
+                            self.feature_extractor.load_state_dict(checkpoint['state_dict'])
+                        else:
+                            self.feature_extractor.load_state_dict(checkpoint)
+
+                    print(f"Loaded pretrained weights from {pretrained_path}")
+                    self.feature_extractor.freeze()
+                except Exception as e:
+                    print(f"Warning: Could not load pretrained weights: {e}")
 
             self.kan_layers = [self.flatten_size] + kan_width + [num_classes]
-
             self.model = torch.nn.Sequential(
                 self.feature_extractor,
                 FastKAN(layers_hidden=self.kan_layers, num_grids=grid_size),
             )
+
 
 
         elif model_type == "resnet50":
@@ -110,7 +121,7 @@ class UniversalCNN(L.LightningModule):
             num_ftrs = self.model.heads.head.in_features
             self.model.heads.head = torch.nn.Linear(num_ftrs, num_classes)
 
-        elif model == "features_extractor":
+        elif model_type == "features_extractor":
             self.model = FeaturesExtractor(
                 classification=True, num_classes=num_classes
             )
@@ -121,7 +132,7 @@ class UniversalCNN(L.LightningModule):
 
         else:
             raise ValueError(
-                f"Unknown model type: {model_type}. Supported: KAN_FAST, resnet18, resnet50, vgg16, densenet121, mobilenet_v2, efficientnet_b0, vit_b_16"
+                f"Unknown model type: {model_type}. Supported: KAN_FAST, resnet18, resnet50, vgg16, densenet121, mobilenet_v2, efficientnet_b0, vit_b_16, features_extractor, diatnet"
             )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
