@@ -24,7 +24,7 @@ class UniversalCNN(L.LightningModule):
         flatten_size: int = 256,
         class_names: list[str] = None,
         scheduler_config: dict | None = None,
-        models_dir: str = None,
+        feature_extractor_path = "models/kan_fast_feature_extractor.pth",
     ):
         super(UniversalCNN, self).__init__()
         self.save_hyperparameters()
@@ -56,7 +56,7 @@ class UniversalCNN(L.LightningModule):
         if model_type in ["KAN_FAST", "KAN", "FAST"]:
             self.feature_extractor = FeaturesExtractor()
 
-            pretrained_path = os.path.join(models_dir, f"{model_type.lower()}_feature_extractor.pth") if models_dir else None
+            pretrained_path = feature_extractor_path if model_type == "KAN_FAST" else None
             if pretrained_path and os.path.exists(pretrained_path):
                 checkpoint = torch.load(pretrained_path, map_location='cpu')
                 if 'state_dict' in checkpoint:
