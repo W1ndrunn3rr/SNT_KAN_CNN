@@ -4,53 +4,48 @@ import torch.nn as nn
 
 
 class FeaturesExtractor(L.LightningModule):
-    def __init__(self):
+    def __init__(self,
+                 channels=[64, 128, 256, 512, 512],
+                 output_dim=256,
+                 dropout=0.5,
+                 classification : int = False,
+                 num_classes : int = 6):
         super().__init__()
-        self.extractor = nn.Sequential(
-            # Layer 1
-            nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(3, stride=2, padding=1),
-            # Layer 2
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            # Layer 3
-            nn.Conv2d(128, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            # Layer 4
-            nn.Conv2d(256, 512, kernel_size=3, padding=1),
-            nn.BatchNorm2d(512),
-            nn.ReLU(),
-            nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            nn.BatchNorm2d(512),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            # Layer 5
-            nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            nn.BatchNorm2d(512),
-            nn.ReLU(),
-            nn.Conv2d(512, 512, kernel_size=3, padding=1),
-            nn.BatchNorm2d(512),
-            nn.ReLU(),
-            # Ending layers
-            nn.AdaptiveAvgPool2d((1, 1)),
+        self.save_hyperparameters()
+
+        layers = []
+        in_ch = 3
+        for out_ch in channels:
+            layers.extend([
+                nn.Conv2d(in_ch, out_ch, 3, padding=1),
+                nn.BatchNorm2d(out_ch),
+                nn.GELU(),
+                nn.MaxPool2d(2, 2) if out_ch != channels[-1] else nn.AdaptiveAvgPool2d((1, 1))
+            ])
+            in_ch = out_ch
+
+        self.encoder = nn.Sequential(*layers)
+        self.projection = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(channels[-1], output_dim)
         )
 
-        self.projection = nn.Linear(512, 256)
+        self.classification_layer = nn.Linear(
+            output_dim, num_classes
+        )
 
     def forward(self, x):
-        x = self.extractor(x)
+        x = self.encoder(x)
         x = torch.flatten(x, 1)
         x = self.projection(x)
+        if self.hparams.classification:
+            x = self.classification_layer(x)
         return x
+
+    def freeze(self):
+        for param in self.parameters():
+            param.requires_grad = False
+
+    def unfreeze(self):
+        for param in self.parameters():
+            param.requires_grad = True

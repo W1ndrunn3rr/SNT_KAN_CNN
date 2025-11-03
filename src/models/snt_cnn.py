@@ -24,6 +24,7 @@ class UniversalCNN(L.LightningModule):
         flatten_size: int = 256,
         class_names: list[str] = None,
         scheduler_config: dict | None = None,
+        models_dir: str = None,
     ):
         super(UniversalCNN, self).__init__()
         self.save_hyperparameters()
@@ -54,12 +55,24 @@ class UniversalCNN(L.LightningModule):
 
         if model_type in ["KAN_FAST", "KAN", "FAST"]:
             self.feature_extractor = FeaturesExtractor()
+
+            pretrained_path = os.path.join(models_dir, f"{model_type.lower()}_feature_extractor.pth") if models_dir else None
+            if pretrained_path and os.path.exists(pretrained_path):
+                checkpoint = torch.load(pretrained_path, map_location='cpu')
+                if 'state_dict' in checkpoint:
+                    self.feature_extractor.load_state_dict(checkpoint['state_dict'])
+                else:
+                    self.feature_extractor.load_state_dict(checkpoint)
+                print(f"Loaded pretrained weights from {pretrained_path}")
+                self.feature_extractor.freeze()
+
             self.kan_layers = [self.flatten_size] + kan_width + [num_classes]
 
             self.model = torch.nn.Sequential(
                 self.feature_extractor,
                 FastKAN(layers_hidden=self.kan_layers, num_grids=grid_size),
             )
+
 
         elif model_type == "resnet50":
             weights = torchvision.models.ResNet50_Weights.DEFAULT
@@ -97,9 +110,13 @@ class UniversalCNN(L.LightningModule):
             num_ftrs = self.model.heads.head.in_features
             self.model.heads.head = torch.nn.Linear(num_ftrs, num_classes)
 
+        elif model == "features_extractor":
+            self.model = FeaturesExtractor(
+                classification=True, num_classes=num_classes
+            )
+
         elif model_type == "diatnet":
             from .diat_cnn import DiatNet
-
             self.model = DiatNet(num_classes=num_classes)
 
         else:
