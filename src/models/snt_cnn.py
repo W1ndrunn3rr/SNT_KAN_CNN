@@ -55,37 +55,41 @@ class UniversalCNN(L.LightningModule):
         self.validation_step_outputs = []
 
         if model_type in ["KAN_FAST", "KAN", "FAST"]:
-            self.feature_extractor = FeaturesExtractor(
-                num_classes=self.num_classes, classification=False
-            )
-
             pretrained_path = (
                 feature_extractor_path if model_type == "KAN_FAST" else None
             )
+
             if pretrained_path and os.path.exists(pretrained_path):
                 try:
                     if pretrained_path.endswith(".ckpt"):
-                        loaded_extractor = FeaturesExtractor.load_from_checkpoint(
-                            pretrained_path, strict=False, classification=False
+                        self.feature_extractor = (
+                            FeaturesExtractor.load_from_universal_cnn_checkpoint(
+                                pretrained_path,
+                                num_classes=self.num_classes,
+                                classification=False,
+                            )
+                        )
+                        print(f"Loaded pretrained weights from {pretrained_path}")
+                        self.feature_extractor.freeze()
+                    else:
+                        self.feature_extractor = FeaturesExtractor(
+                            num_classes=self.num_classes, classification=False
                         )
                         self.feature_extractor.load_state_dict(
-                            loaded_extractor.state_dict()
+                            torch.load(pretrained_path, map_location="cpu")
                         )
-                    else:
-                        checkpoint = torch.load(
-                            pretrained_path, map_location="cpu", weights_only=False
-                        )
-                        if "state_dict" in checkpoint:
-                            self.feature_extractor.load_state_dict(
-                                checkpoint["state_dict"]
-                            )
-                        else:
-                            self.feature_extractor.load_state_dict(checkpoint)
-
-                    print(f"Loaded pretrained weights from {pretrained_path}")
-                    self.feature_extractor.freeze()
+                        print(f"Loaded pretrained weights from {pretrained_path}")
+                        self.feature_extractor.freeze()
                 except Exception as e:
                     print(f"Warning: Could not load pretrained weights: {e}")
+                    print("Initializing feature extractor with random weights")
+                    self.feature_extractor = FeaturesExtractor(
+                        num_classes=self.num_classes, classification=False
+                    )
+            else:
+                self.feature_extractor = FeaturesExtractor(
+                    num_classes=self.num_classes, classification=False
+                )
 
             self.kan_layers = [self.flatten_size] + kan_width + [num_classes]
             self.model = torch.nn.Sequential(
