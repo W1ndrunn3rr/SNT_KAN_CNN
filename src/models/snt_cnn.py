@@ -55,7 +55,9 @@ class UniversalCNN(L.LightningModule):
         self.validation_step_outputs = []
 
         if model_type in ["KAN_FAST", "KAN", "FAST"]:
-            self.feature_extractor = FeaturesExtractor()
+            self.feature_extractor = FeaturesExtractor(
+                num_classes=self.num_classes, classification=False
+            )
 
             pretrained_path = (
                 feature_extractor_path if model_type == "KAN_FAST" else None
