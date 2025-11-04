@@ -57,8 +57,11 @@ class FeaturesExtractor(L.LightningModule):
 
     @classmethod
     def load_from_universal_cnn_checkpoint(cls, checkpoint_path: str, **kwargs):
-
-        checkpoint = torch.load(checkpoint_path, map_location="cpu")
+        checkpoint = torch.load(
+            checkpoint_path,
+            map_location="cpu",
+            weights_only=False,
+        )
         state_dict = checkpoint["state_dict"]
 
         new_state_dict = {}

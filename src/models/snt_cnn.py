@@ -76,7 +76,9 @@ class UniversalCNN(L.LightningModule):
                             num_classes=self.num_classes, classification=False
                         )
                         self.feature_extractor.load_state_dict(
-                            torch.load(pretrained_path, map_location="cpu")
+                            torch.load(
+                                pretrained_path, map_location="cpu", weights_only=False
+                            )
                         )
                         print(f"Loaded pretrained weights from {pretrained_path}")
                         self.feature_extractor.freeze()
