@@ -11,6 +11,7 @@ import numpy as np
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import os
 
+
 class UniversalCNN(L.LightningModule):
     def __init__(
         self,
@@ -24,7 +25,7 @@ class UniversalCNN(L.LightningModule):
         flatten_size: int = 256,
         class_names: list[str] = None,
         scheduler_config: dict | None = None,
-        feature_extractor_path = "models/kan_fast_feature_extractor.pth",
+        feature_extractor_path="models/kan_fast_feature_extractor.pth",
     ):
         super(UniversalCNN, self).__init__()
         self.save_hyperparameters()
@@ -56,19 +57,26 @@ class UniversalCNN(L.LightningModule):
         if model_type in ["KAN_FAST", "KAN", "FAST"]:
             self.feature_extractor = FeaturesExtractor()
 
-            pretrained_path = feature_extractor_path if model_type == "KAN_FAST" else None
+            pretrained_path = (
+                feature_extractor_path if model_type == "KAN_FAST" else None
+            )
             if pretrained_path and os.path.exists(pretrained_path):
                 try:
-                    if pretrained_path.endswith('.ckpt'):
+                    if pretrained_path.endswith(".ckpt"):
                         loaded_extractor = FeaturesExtractor.load_from_checkpoint(
-                            pretrained_path,
-                            strict=False
+                            pretrained_path, strict=False, classification=False
                         )
-                        self.feature_extractor.load_state_dict(loaded_extractor.state_dict())
+                        self.feature_extractor.load_state_dict(
+                            loaded_extractor.state_dict()
+                        )
                     else:
-                        checkpoint = torch.load(pretrained_path, map_location='cpu', weights_only=False)
-                        if 'state_dict' in checkpoint:
-                            self.feature_extractor.load_state_dict(checkpoint['state_dict'])
+                        checkpoint = torch.load(
+                            pretrained_path, map_location="cpu", weights_only=False
+                        )
+                        if "state_dict" in checkpoint:
+                            self.feature_extractor.load_state_dict(
+                                checkpoint["state_dict"]
+                            )
                         else:
                             self.feature_extractor.load_state_dict(checkpoint)
 
@@ -82,8 +90,6 @@ class UniversalCNN(L.LightningModule):
                 self.feature_extractor,
                 FastKAN(layers_hidden=self.kan_layers, num_grids=grid_size),
             )
-
-
 
         elif model_type == "resnet50":
             weights = torchvision.models.ResNet50_Weights.DEFAULT
@@ -122,12 +128,11 @@ class UniversalCNN(L.LightningModule):
             self.model.heads.head = torch.nn.Linear(num_ftrs, num_classes)
 
         elif model_type == "features_extractor":
-            self.model = FeaturesExtractor(
-                classification=True, num_classes=num_classes
-            )
+            self.model = FeaturesExtractor(classification=True, num_classes=num_classes)
 
         elif model_type == "diatnet":
             from .diat_cnn import DiatNet
+
             self.model = DiatNet(num_classes=num_classes)
 
         else:
