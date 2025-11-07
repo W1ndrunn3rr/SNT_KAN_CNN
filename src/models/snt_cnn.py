@@ -19,8 +19,8 @@ class UniversalCNN(L.LightningModule):
         num_classes: int = 6,
         optimizer: str = "adam",
         learning_rate: float = 1e-3,
-        kan_width: list[int] = [512, 256, 128, 64, 32],
-        grid_size: int = 5,
+        kan_width: list[int] = [256, 128, 64, 32, 16],
+        grid_size: int = 8,
         k: int = 3,
         flatten_size: int = 3 * 224 * 224,
         class_names: list[str] = None,
@@ -101,8 +101,11 @@ class UniversalCNN(L.LightningModule):
                 )
 
             self.kan_layers = [self.flatten_size] + kan_width + [num_classes]
+
             self.model = torch.nn.Sequential(
                 self.feature_extractor,
+                torch.nn.BatchNorm1d(self.flatten_size),
+                torch.nn.Dropout(0.2),
                 FastKAN(layers_hidden=self.kan_layers, num_grids=grid_size),
             )
 
