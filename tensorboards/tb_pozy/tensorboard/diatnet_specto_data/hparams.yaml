@@ -1,0 +1,33 @@
+model_type: diatnet
+num_classes: 12
+optimizer: adam
+learning_rate: 0.0001
+kan_width:
+- 128
+- 64
+- 32
+grid_size: 5
+k: 3
+flatten_size: 256
+class_names:
+- Cane
+- Crawling
+- Creeping
+- Crutch
+- Fall Sideways
+- Falling Front
+- HO
+- Limping
+- Running
+- Tripod
+- Walker
+- Walking
+- Wheeled Chair
+scheduler_config:
+  factor: 0.5
+  patience: 3
+  min_lr: 1.0e-07
+  monitor: val_loss
+  mode: min
+  threshold: 0.0001
+  cooldown: 0

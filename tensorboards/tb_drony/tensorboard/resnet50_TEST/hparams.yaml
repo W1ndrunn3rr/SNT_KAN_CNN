@@ -1,0 +1,26 @@
+model_type: resnet50
+num_classes: 6
+optimizer: adam
+learning_rate: 0.0001
+kan_width:
+- 128
+- 64
+- 32
+grid_size: 5
+k: 3
+flatten_size: 256
+class_names:
+- 2_blade_rotor
+- 3_long_blades_rotor
+- 3_short_blade_rotor
+- bird
+- bird+2_blade_rotor
+- drone
+scheduler_config:
+  factor: 0.5
+  patience: 3
+  min_lr: 1.0e-07
+  monitor: val_loss
+  mode: min
+  threshold: 0.0001
+  cooldown: 0

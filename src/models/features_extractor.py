@@ -7,7 +7,7 @@ class FeaturesExtractor(L.LightningModule):
     def __init__(
         self,
         channels=[64, 128, 256, 512, 512],
-        output_dim=256,
+        output_dim=512,
         dropout=0.5,
         classification: int = False,
         num_classes: int = 6,

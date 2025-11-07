@@ -19,10 +19,10 @@ class UniversalCNN(L.LightningModule):
         num_classes: int = 6,
         optimizer: str = "adam",
         learning_rate: float = 1e-3,
-        kan_width: list[int] = [128, 64, 32],
+        kan_width: list[int] = [512, 256, 128, 64, 32],
         grid_size: int = 5,
         k: int = 3,
-        flatten_size: int = 256,
+        flatten_size: int = 3 * 224 * 224,
         class_names: list[str] = None,
         scheduler_config: dict | None = None,
         feature_extractor_path="models/kan_fast_feature_extractor.pth",
@@ -53,6 +53,13 @@ class UniversalCNN(L.LightningModule):
         )
 
         self.validation_step_outputs = []
+
+        if model_type == "just_kan":
+            self.kan_layers = [self.flatten_size] + kan_width + [num_classes]
+            self.model = torch.nn.Sequential(
+                torch.nn.Flatten(flatten_size=flatten_size),
+                FastKAN(layers_hidden=self.kan_layers, num_grids=grid_size),
+            )
 
         if model_type in ["KAN_FAST", "KAN", "FAST"]:
             pretrained_path = (
