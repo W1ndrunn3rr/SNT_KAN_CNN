@@ -18,7 +18,7 @@ data_params:
   train_dir: "data/${data_params.dataset_name}/train"
   val_dir: "data/${data_params.dataset_name}/val"
   test_dir: "data/${data_params.dataset_name}/test"
-  fe_path: "models/fe.ckpt"
+  feature_extractor_path: ""
   batch_size: 32
   num_workers: 8
   precision: "16-mixed"
