@@ -57,11 +57,11 @@ class UniversalCNN(L.LightningModule):
         if model_type == "just_kan":
             self.kan_layers = [self.flatten_size] + kan_width + [num_classes]
             self.model = torch.nn.Sequential(
-                torch.nn.Flatten(flatten_size=flatten_size),
+                torch.nn.Flatten(),
                 FastKAN(layers_hidden=self.kan_layers, num_grids=grid_size),
             )
 
-        if model_type in ["KAN_FAST", "KAN", "FAST"]:
+        elif model_type in ["KAN_FAST", "KAN", "FAST"]:
             pretrained_path = (
                 feature_extractor_path if model_type == "KAN_FAST" else None
             )
