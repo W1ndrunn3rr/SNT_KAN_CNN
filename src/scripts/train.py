@@ -64,7 +64,7 @@ def train(cfg):
         learning_rate=cfg.model_params.learning_rate,
         class_names=class_names,
         scheduler_config=cfg.model_params.scheduler,
-        feature_extractor_path=cfg.model_params.feature_extractor_path,
+        feature_extractor_path=cfg.data_params.feature_extractor_path,
     )
 
     trainer = L.Trainer(
